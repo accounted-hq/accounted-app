@@ -1,36 +1,60 @@
+# Accountanted - Enterprise Accounting System
+
+This is a multi-tenant, enterprise-grade financial accounting system built with Next.js 15, React 19, TypeScript, and PostgreSQL with Drizzle ORM.
+
+## Quick Start
+
+1. **Start the database:**
+   ```bash
+   npm run db:up
+   ```
+
+2. **Run migrations:**
+   ```bash
+   npm run db:migrate
+   ```
+
+3. **Start the development server:**
+   ```bash
+   npm run dev
+   ```
+
+## Database Management
+
+- `npm run db:up` - Start PostgreSQL container
+- `npm run db:down` - Stop PostgreSQL container  
+- `npm run db:reset` - Reset database (removes all data)
+- `npm run db:generate` - Generate migration files
+- `npm run db:migrate` - Run pending migrations
+- `npm run db:studio` - Open Drizzle Studio
+
+## Architecture
+
+### Multi-tenancy & Security
+- Row-Level Security (RLS) enforced on all tables
+- Tenant isolation via session variables
+- Role-based access control (accountant, auditor, admin, integration-bot)
+
+### Core Features
+- Immutable journal entries with cryptographic hash chaining
+- Multi-currency support with automated revaluation
+- Period-based posting restrictions
+- Comprehensive audit logging
+- API idempotency support
+
+## Development
+
+The project is structured in phases:
+- **Phase 1**: Database setup, multi-tenancy, authentication
+- **Phase 2**: Business logic, multi-currency, tax system
+- **Phase 3**: Compliance, monitoring, backup systems
+
+See `CLAUDE.md` for detailed implementation plan.
+
+## Original Next.js Documentation
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
