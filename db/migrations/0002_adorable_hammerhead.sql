@@ -1,0 +1,42 @@
+ALTER TABLE "accounts" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "audit_log" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "bank_import_details" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "bank_imports" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "exchange_rates" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "idempotency_keys" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "journal_lines" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "tax_configs" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE POLICY "accounts_select_policy" ON "accounts" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("accounts"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "accounts_insert_policy" ON "accounts" AS PERMISSIVE FOR INSERT TO "accountant_role", "admin_role" WITH CHECK ("accounts"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "accounts_update_policy" ON "accounts" AS PERMISSIVE FOR UPDATE TO "accountant_role", "admin_role" USING ("accounts"."organization_id" = current_organization_id()) WITH CHECK ("accounts"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "accounts_delete_policy" ON "accounts" AS PERMISSIVE FOR DELETE TO "admin_role" USING ("accounts"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "audit_log_select_policy" ON "audit_log" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("audit_log"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "audit_log_insert_policy" ON "audit_log" AS PERMISSIVE FOR INSERT TO public WITH CHECK ("audit_log"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "audit_log_delete_policy" ON "audit_log" AS PERMISSIVE FOR DELETE TO "admin_role" USING ("audit_log"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_import_details_select_policy" ON "bank_import_details" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("bank_import_details"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_import_details_insert_policy" ON "bank_import_details" AS PERMISSIVE FOR INSERT TO "accountant_role", "admin_role", "integration_bot_role" WITH CHECK ("bank_import_details"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_import_details_update_policy" ON "bank_import_details" AS PERMISSIVE FOR UPDATE TO "accountant_role", "admin_role", "integration_bot_role" USING ("bank_import_details"."organization_id" = current_organization_id()) WITH CHECK ("bank_import_details"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_import_details_delete_policy" ON "bank_import_details" AS PERMISSIVE FOR DELETE TO "admin_role" USING ("bank_import_details"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_imports_select_policy" ON "bank_imports" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("bank_imports"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_imports_insert_policy" ON "bank_imports" AS PERMISSIVE FOR INSERT TO "accountant_role", "admin_role", "integration_bot_role" WITH CHECK ("bank_imports"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_imports_update_policy" ON "bank_imports" AS PERMISSIVE FOR UPDATE TO "accountant_role", "admin_role", "integration_bot_role" USING ("bank_imports"."organization_id" = current_organization_id()) WITH CHECK ("bank_imports"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "bank_imports_delete_policy" ON "bank_imports" AS PERMISSIVE FOR DELETE TO "admin_role" USING ("bank_imports"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "exchange_rates_select_policy" ON "exchange_rates" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("exchange_rates"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "exchange_rates_insert_policy" ON "exchange_rates" AS PERMISSIVE FOR INSERT TO "accountant_role", "admin_role", "integration_bot_role" WITH CHECK ("exchange_rates"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "exchange_rates_update_policy" ON "exchange_rates" AS PERMISSIVE FOR UPDATE TO "admin_role" USING ("exchange_rates"."organization_id" = current_organization_id()) WITH CHECK ("exchange_rates"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "exchange_rates_delete_policy" ON "exchange_rates" AS PERMISSIVE FOR DELETE TO "admin_role" USING ("exchange_rates"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "idempotency_keys_select_policy" ON "idempotency_keys" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("idempotency_keys"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "idempotency_keys_insert_policy" ON "idempotency_keys" AS PERMISSIVE FOR INSERT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" WITH CHECK ("idempotency_keys"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "idempotency_keys_delete_policy" ON "idempotency_keys" AS PERMISSIVE FOR DELETE TO "admin_role" USING ("idempotency_keys"."organization_id" = current_organization_id() AND "idempotency_keys"."expires_at" < NOW());--> statement-breakpoint
+CREATE POLICY "journal_lines_select_policy" ON "journal_lines" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("journal_lines"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "journal_lines_insert_policy" ON "journal_lines" AS PERMISSIVE FOR INSERT TO "accountant_role", "admin_role", "integration_bot_role" WITH CHECK ("journal_lines"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "journal_lines_update_policy" ON "journal_lines" AS PERMISSIVE FOR UPDATE TO "accountant_role", "admin_role" USING ("journal_lines"."organization_id" = current_organization_id() AND EXISTS (
+      SELECT 1 FROM journals j WHERE j.id = "journal_lines"."journal_id" AND j.status = 'draft'
+    )) WITH CHECK ("journal_lines"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "journal_lines_delete_policy" ON "journal_lines" AS PERMISSIVE FOR DELETE TO "accountant_role", "admin_role" USING ("journal_lines"."organization_id" = current_organization_id() AND EXISTS (
+      SELECT 1 FROM journals j WHERE j.id = "journal_lines"."journal_id" AND j.status = 'draft'
+    ));--> statement-breakpoint
+CREATE POLICY "tax_configs_select_policy" ON "tax_configs" AS PERMISSIVE FOR SELECT TO "accountant_role", "admin_role", "auditor_role", "integration_bot_role" USING ("tax_configs"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "tax_configs_insert_policy" ON "tax_configs" AS PERMISSIVE FOR INSERT TO "accountant_role", "admin_role" WITH CHECK ("tax_configs"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "tax_configs_update_policy" ON "tax_configs" AS PERMISSIVE FOR UPDATE TO "accountant_role", "admin_role" USING ("tax_configs"."organization_id" = current_organization_id()) WITH CHECK ("tax_configs"."organization_id" = current_organization_id());--> statement-breakpoint
+CREATE POLICY "tax_configs_delete_policy" ON "tax_configs" AS PERMISSIVE FOR DELETE TO "admin_role" USING ("tax_configs"."organization_id" = current_organization_id());
