@@ -1,14 +1,14 @@
-import { betterAuth } from "better-auth";
-import { 
-  organization, 
-  apiKey, 
-  twoFactor, 
-  admin, 
-  bearer 
+import {betterAuth} from "better-auth";
+import {
+    admin,
+    apiKey,
+    bearer,
+    organization as organizationPlugin,
+    twoFactor as twoFactorPlugin
 } from "better-auth/plugins";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "@/db/connection";
-import * as schema from "@/db/schema";
+import {drizzleAdapter} from "better-auth/adapters/drizzle";
+import {db} from "@/db/connection";
+import {account, apikey, invitation, member, organization, session, twoFactor, user, verification} from "@/db/schema";
 
 // Construct base URL using Vercel environment variables
 const baseURL = process.env.VERCEL_URL 
@@ -17,16 +17,29 @@ const baseURL = process.env.VERCEL_URL
     ? process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "https://accountanted.vercel.app" // fallback
-    : "http://localhost:3000";
+        : "http://localhost:8888";
+
+// BetterAuth specific schema - only include auth-related tables
+const authSchema = {
+    user,
+    session,
+    account,
+    verification,
+    organization,
+    member,
+    invitation,
+    apikey,
+    twoFactor,
+};
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
-    schema: schema,
+      schema: authSchema,
   }),
   
   // Required secret for JWT signing
-  secret: process.env.JWT_SECRET || "dev-secret-change-in-production",
+    secret: process.env.BETTER_AUTH_SECRET || "dev-secret-change-in-production",
   
   appName: "Accountanted",
   
@@ -49,7 +62,7 @@ export const auth = betterAuth({
   
   plugins: [
     // Multi-tenancy with role-based access control
-    organization({
+      organizationPlugin({
       allowUserToCreateOrganization: async (user) => {
         // Only allow admins to create organizations initially
         // This can be customized based on business logic
@@ -71,7 +84,7 @@ export const auth = betterAuth({
     apiKey(),
     
     // Two-factor authentication for enhanced security
-    twoFactor({
+      twoFactorPlugin({
       issuer: "Accountanted",
     }),
     
@@ -112,7 +125,7 @@ export const auth = betterAuth({
     // Add preview deployments on Vercel
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
     // Local development
-    "http://localhost:3000",
+      "http://localhost:8888",
   ].filter(Boolean),
   
   baseURL,
