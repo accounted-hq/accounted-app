@@ -9,6 +9,6 @@ export default defineConfig({
     port: 6542,
     user: 'postgres',
     password: 'postgres',
-    database: 'accountanted',
+      database: 'accounted-app',
   },
 });

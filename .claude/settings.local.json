@@ -8,7 +8,9 @@
       "mcp__Context7__get-library-docs",
       "Bash(npx tsc:*)",
         "Bash(curl:*)",
-        "Bash(touch:*)"
+        "Bash(touch:*)",
+        "Bash(npm install:*)",
+        "WebFetch(domain:upstash.com)"
     ],
     "deny": []
   }

@@ -1,4 +1,4 @@
--- Accountanted Database Schema
+-- Accounted App Database Schema
 -- Multi-tenant accounting system with Row-Level Security (RLS)
 -- Compliant with German accounting standards (UGB)
 

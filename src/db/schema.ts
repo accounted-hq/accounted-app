@@ -614,3 +614,122 @@ export const twoFactor = pgTable('two_factor', {
   backupCodes: text('backup_codes').notNull(),
   userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
 });
+
+// ============================================================================
+// OAUTH 2.0 TABLES
+// ============================================================================
+
+// OAuth clients for service-to-service authentication
+export const oauthClients = pgTable('oauth_clients', {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid
+    ()`),
+    organizationId: text('organization_id').references(() => organization.id).notNull(),
+    clientId: varchar('client_id', {length: 255}).unique().notNull(),
+    clientSecret: varchar('client_secret', {length: 255}).notNull(), // bcrypt hashed
+    name: varchar('name', {length: 255}).notNull(),
+    grants: jsonb('grants').default(JSON.stringify(['client_credentials'])).notNull(),
+    scopes: jsonb('scopes').default(JSON.stringify(['read', 'write'])).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+    createdBy: text('created_by').references(() => user.id).notNull(),
+}, (table) => [
+    // Indexes and constraints
+    unique().on(table.organizationId, table.name),
+    index('oauth_clients_organization_idx').on(table.organizationId),
+    index('oauth_clients_client_id_idx').on(table.clientId),
+
+    // RLS policies
+    pgPolicy('oauth_clients_select_policy', {
+        for: 'select',
+        to: [accountantRole, auditorRole, adminRole],
+        using: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    }),
+
+    pgPolicy('oauth_clients_insert_policy', {
+        for: 'insert',
+        to: [adminRole],
+        withCheck: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    }),
+
+    pgPolicy('oauth_clients_update_policy', {
+        for: 'update',
+        to: [adminRole],
+        using: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+        withCheck: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    }),
+
+    pgPolicy('oauth_clients_delete_policy', {
+        for: 'delete',
+        to: [adminRole],
+        using: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    })
+]).enableRLS();
+
+// OAuth tokens for access control
+export const oauthTokens = pgTable('oauth_tokens', {
+    id: uuid('id').primaryKey().default(sql`gen_random_uuid
+    ()`),
+    organizationId: text('organization_id').references(() => organization.id).notNull(),
+    clientId: uuid('client_id').references(() => oauthClients.id).notNull(),
+    accessToken: varchar('access_token', {length: 255}).unique().notNull(),
+    refreshToken: varchar('refresh_token', {length: 255}).unique(),
+    scopes: jsonb('scopes').notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    lastUsedAt: timestamp('last_used_at'),
+    ipAddress: varchar('ip_address', {length: 45}),
+    userAgent: text('user_agent'),
+}, (table) => [
+    // Indexes and constraints
+    index('oauth_tokens_organization_idx').on(table.organizationId),
+    index('oauth_tokens_client_idx').on(table.clientId),
+    index('oauth_tokens_access_token_idx').on(table.accessToken),
+    index('oauth_tokens_expires_idx').on(table.expiresAt),
+
+    // RLS policies
+    pgPolicy('oauth_tokens_select_policy', {
+        for: 'select',
+        to: [accountantRole, auditorRole, adminRole, integrationBotRole],
+        using: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    }),
+
+    pgPolicy('oauth_tokens_insert_policy', {
+        for: 'insert',
+        to: 'public', // OAuth server needs to insert tokens
+        withCheck: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    }),
+
+    pgPolicy('oauth_tokens_update_policy', {
+        for: 'update',
+        to: 'public', // OAuth server needs to update last_used_at
+        using: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+        withCheck: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    }),
+
+    pgPolicy('oauth_tokens_delete_policy', {
+        for: 'delete',
+        to: 'public', // OAuth server needs to delete expired/revoked tokens
+        using: sql`${table.organizationId}
+        =
+        ${currentOrganizationId}`,
+    })
+]).enableRLS();

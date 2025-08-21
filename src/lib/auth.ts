@@ -9,6 +9,7 @@ import {
 import {drizzleAdapter} from "better-auth/adapters/drizzle";
 import {db} from "@/db/connection";
 import {account, apikey, invitation, member, organization, session, twoFactor, user, verification} from "@/db/schema";
+import {emailService} from '@/lib/email';
 
 // Construct base URL using Vercel environment variables
 const baseURL = process.env.VERCEL_URL 
@@ -16,7 +17,7 @@ const baseURL = process.env.VERCEL_URL
   : process.env.NODE_ENV === "production"
     ? process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : "https://accountanted.vercel.app" // fallback
+            : "https://accounted-app.vercel.app" // fallback
         : "http://localhost:8888";
 
 // BetterAuth specific schema - only include auth-related tables
@@ -40,23 +41,67 @@ export const auth = betterAuth({
   
   // Required secret for JWT signing
     secret: process.env.BETTER_AUTH_SECRET || "dev-secret-change-in-production",
-  
-  appName: "Accountanted",
+
+    appName: "Accounted App",
   
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
     minPasswordLength: 12, // Enterprise security
     sendResetPassword: async ({ user, url, token }, request) => {
-      // TODO: Implement email sending
-      console.log(`Password reset for ${user.email}: ${url}`);
+        if (emailService) {
+            try {
+                const result = await emailService.sendPasswordReset({
+                    user: {email: user.email, name: user.name},
+                    url,
+                    token
+                });
+
+                if (!result.success) {
+                    console.error('❌ Failed to send password reset email:', result.error?.message);
+                    // Fallback to console log for development
+                    console.log(`🔧 [DEV] Password reset for ${user.email}: ${url}`);
+                } else {
+                    console.log(`✅ Password reset email sent successfully (${result.messageId})`);
+                }
+            } catch (error) {
+                console.error('❌ Error sending password reset email:', error);
+                // Fallback to console log
+                console.log(`Password reset for ${user.email}: ${url}`);
+            }
+        } else {
+            // Fallback when email service is not configured
+            console.log(`🔧 [DEV] Password reset for ${user.email}: ${url}`);
+        }
     },
   },
   
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, request) => {
-      // TODO: Implement email sending
-      console.log(`Email verification for ${user.email}: ${url}`);
+        if (emailService) {
+            try {
+                const result = await emailService.sendEmailVerification({
+                    user: {email: user.email, name: user.name},
+                    url,
+                    token
+                });
+
+                if (!result.success) {
+                    console.error('❌ Failed to send email verification:', result.error?.message);
+                    // Fallback to console log for development
+                    console.log(`🔧 [DEV] Email verification for ${user.email}: ${url}`);
+                } else {
+                    console.log(`✅ Email verification sent successfully (${result.messageId})`);
+                }
+            } catch (error) {
+                console.error('❌ Error sending email verification:', error);
+                // Fallback to console log
+                console.log(`Email verification for ${user.email}: ${url}`);
+            }
+        } else {
+            // Fallback when email service is not configured
+            console.log(`🔧 [DEV] Email verification for ${user.email}: ${url}`);
+        }
     },
   },
   
@@ -85,7 +130,7 @@ export const auth = betterAuth({
     
     // Two-factor authentication for enhanced security
       twoFactorPlugin({
-      issuer: "Accountanted",
+          issuer: "Accounted App",
     }),
     
     // Admin plugin for user management

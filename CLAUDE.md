@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an accounting system (accountanted) built with Next.js 15.4.6, React 19, and TypeScript. The project implements a multi-tenant, enterprise-grade financial accounting system with strict audit requirements and immutable journal entries.
+This is an accounting system (accounted-app) built with Next.js 15.4.6, React 19, and TypeScript. The project implements
+a multi-tenant, enterprise-grade financial accounting system with strict audit requirements and immutable journal
+entries.
 
 ## Development Commands
 

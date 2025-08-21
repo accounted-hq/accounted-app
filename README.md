@@ -1,4 +1,4 @@
-# Accountanted - Enterprise Accounting System
+# Accounted App - Enterprise Accounting System
 
 This is a multi-tenant, enterprise-grade financial accounting system built with Next.js 15, React 19, TypeScript, and PostgreSQL with Drizzle ORM.
 

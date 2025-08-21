@@ -22,6 +22,20 @@
       "when": 1755673274407,
       "tag": "0002_adorable_hammerhead",
       "breakpoints": true
+    },
+      {
+          "idx": 3,
+          "version": "7",
+          "when": 1755764488841,
+          "tag": "0003_friendly_jubilee",
+          "breakpoints": true
+      },
+      {
+          "idx": 4,
+          "version": "7",
+          "when": 1755765218669,
+          "tag": "0004_next_sentinels",
+          "breakpoints": true
     }
   ]
 }

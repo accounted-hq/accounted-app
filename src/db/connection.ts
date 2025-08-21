@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:6542/accountanted';
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:6542/accounted-app';
 
 // For migrations and other administrative tasks
 export const migrationClient = postgres(connectionString, { max: 1 });

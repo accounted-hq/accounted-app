@@ -95,7 +95,7 @@ export default function RegisterPage() {
                         Create your account
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">
-                        Join Accountanted - Enterprise accounting system
+                        Join Accounted App - Enterprise accounting system
                     </p>
                 </div>
 
